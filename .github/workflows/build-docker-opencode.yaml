@@ -5,7 +5,7 @@ on:
   workflow_dispatch:  # Allow manual triggering
 
   schedule:
-    - cron: '0 2 * * *' #every night at 02:00 am
+    - cron: '0 2,14 * * *' #every night at 02:00 am
 
   push:
     paths:
@@ -65,6 +65,9 @@ jobs:
 
       - name: 'set up Docker Buildx'
         uses: docker/setup-buildx-action@v3
+        env:
+          # to avoid unknown arch in container registry
+          BUILDX_NO_DEFAULT_ATTESTATIONS: 1
 
       - name: 'build and push to Github Container Registry'
         uses: docker/build-push-action@v6
