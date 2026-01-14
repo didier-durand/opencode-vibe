@@ -1,11 +1,11 @@
-name: 'docker build opencode Docker image'
+name: 'build opencode Docker image'
 
 on:
 
   workflow_dispatch:  # Allow manual triggering
 
   schedule:
-    - cron: '0 2,14 * * *' #every night at 02:00 am
+    - cron: '0 2,14 * * *' # runs at least twice every day: 2am and 2pm
 
   push:
     paths:
@@ -26,7 +26,7 @@ jobs:
     env:
       DOCKER_FILE: 'Dockerfile'
       REGISTRY: 'ghcr.io'
-      IMAGE_NAME: 'ghcr.io/didier-durand/opencode'
+      IMAGE_NAME: 'ghcr.io/didier-durand/opencode-vibe'
 
     steps:
 
