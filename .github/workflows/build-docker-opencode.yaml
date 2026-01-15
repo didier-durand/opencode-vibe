@@ -40,10 +40,13 @@ jobs:
           echo "OPENCODE_VERSION=$OPENCODE_VERSION" >> $GITHUB_ENV
           echo "=== env vars ==="
           printenv
-          
 
       - name: 'checkout git code'
         uses: actions/checkout@v5
+
+      - name: 'validate Dockerfile'
+        run: |
+          docker run --rm -i hadolint/hadolint < $DOCKER_FILE
 
       - name: 'login to GitHub Container Registry'
         uses: docker/login-action@v3
