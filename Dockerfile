@@ -52,7 +52,7 @@ ENV PATH="$PATH:/$HOME/.opencode/bin/"
 ENV OPENCODE_CONFIG="$HOME/.config/opencode/opencode.jsonc"
 # use * pattern to avoid copy failure if files don't exist
 COPY opencode.jsonc* "$OPENCODE_CONFIG"
-COPY .opencode/agent/* .opencode/agent/
+COPY .opencode/* .opencode/
 
 # user 'opencode'  allows to have all user Opencode data & config on mounted volume
 # see https://opencode.ai/docs/troubleshooting/  for content of –/.local
