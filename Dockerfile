@@ -3,6 +3,7 @@ SHELL ["/bin/bash", "-c"]
 # escape=\
 
 ARG PYTHON_VERSION="3.13"
+ARG OTEL_VERSION="0.143.0"
 
 ENV USER="opencode"
 ENV HOME="/home/$USER"
@@ -21,14 +22,13 @@ RUN apt-get update -y  \
 
 # OpenTelemetry install
 ARG TARGETPLATFORM
-# need to be explicitly set for docker build on MacOS (automatic on GitHub buildx)
+# need to be explicitly set for docker build locally on MacOS (automatic on GitHub buildx)
 ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/arm64}
 ENV OTEL_PLATFORM=${TARGETPLATFORM#*/}
-ARG OTEL_VER="0.143.0"
-# contrib is required to have filelog extension
-# ARG OTEL_COLL_DEB="otelcol_${OTEL_VER}_linux_${OTEL_PLATFORM}.deb"
-ARG OTEL_COLL_DEB="otelcol-contrib_${OTEL_VER}_linux_${OTEL_PLATFORM}.deb"
-RUN curl --location --output "$OTEL_COLL_DEB" "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v$OTEL_VER/$OTEL_COLL_DEB" \
+# contrib package is required to have filelog extension
+# ARG OTEL_COLL_DEB="otelcol_${OTEL_VERSION}_linux_${OTEL_PLATFORM}.deb"
+ARG OTEL_COLL_DEB="otelcol-contrib_${OTEL_VERSION}_linux_${OTEL_PLATFORM}.deb"
+RUN curl --location --output "$OTEL_COLL_DEB" "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v$OTEL_VERSION/$OTEL_COLL_DEB" \
     && dpkg -i "$OTEL_COLL_DEB" \
     && rm "$OTEL_COLL_DEB"
 
@@ -36,19 +36,25 @@ RUN curl --location --output "$OTEL_COLL_DEB" "https://github.com/open-telemetry
 ENV OTEL_CONFIG="$HOME/otel-config.yaml"
 COPY otel-config.yaml "$OTEL_CONFIG"
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-# install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh  \
-    && source /$HOME/.local/bin/env
+# install last version of uv
 ENV PATH="$PATH:/$HOME/.local/bin"
-RUN uv --version
+# set to avoid issue describd in https://github.com/hadolint/hadolint/wiki/DL4006
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh  \
+    && source /$HOME/.local/bin/env \
+    && uv --version
 
-# install opencode
-# hadolint ignore=DL3016,DL3059
+# install last version of opencode
+# hadolint ignore=DL3016
 RUN npm install -g  opencode-ai
 ENV PATH="$PATH:/$HOME/.opencode/bin/"
 
-# this user allows to have all user Opencode data & config on mounted volume
+ENV OPENCODE_CONFIG="$HOME/.config/opencode/opencode.jsonc"
+# use * pattern to avoid copy failure if files don't exist
+COPY opencode.jsonc* "$OPENCODE_CONFIG"
+COPY .opencode/agent/* .opencode/agent/
+
+# user 'opencode'  allows to have all user Opencode data & config on mounted volume
 # see https://opencode.ai/docs/troubleshooting/  for content of –/.local
 RUN groupadd --system $USER  \
     && useradd --system $USER --gid $USER \

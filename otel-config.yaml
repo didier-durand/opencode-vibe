@@ -18,9 +18,9 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
   filelog:
+    # default location of oopencode log files
     include: [ "${env:HOME}/.local/share/opencode/log/*.log"]
     operators:
-      # https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/pkg/stanza/docs/types/entry.md
       - type: regex_parser
         id: matching_regex
         regex: '^(?P<sev>[A-Z]*) *(?P<time>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}) *(?P<msg>.*)$'
@@ -29,7 +29,7 @@ receivers:
       - type: regex_parser
         id: catch_all
         regex: '(?P<log>.*)'
-  # Collector own metrics
+  # Collector for own metrics
   prometheus:
     config:
       scrape_configs:
@@ -43,11 +43,12 @@ exporters:
   debug:
     verbosity: detailed
 
-  # Export to Dash0
-  otlp/dash0:
-    endpoint: "${env:DASH0_GRPC_ENDPOINT}"
+  # Export to OTEL backed
+  otlp/backend:
+    endpoint: "${env:OTEL_BACKEND_ENDPOINT}"
     headers:
-      "Authorization": "Bearer ${env:DASH0_TOKEN}"
+      #"Authorization": "Bearer ${env:DASH0_TOKEN}"
+      "Authorization": "${env:OTEL_BACKEND_HEADER}"
 
 processors:
   batch:
@@ -60,13 +61,13 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      # exporters: [debug,otlp/dash0]
-      exporters: [debug]
+      # exporters: [debug,otlp/backend]
+      exporters: [otlp/backend]
     metrics:
       receivers: [otlp,prometheus]
-      # exporters: [debug,otlp/dash0]
-      exporters: [debug]
+      # exporters: [debug,otlp/backend]
+      exporters: [otlp/backend]
     logs:
       receivers: [otlp,filelog]
-      # exporters: [debug,otlp/dash0]
-      exporters: [debug]
+      # exporters: [debug,otlp/backend]
+      exporters: [otlp/backend]
