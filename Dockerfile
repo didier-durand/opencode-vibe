@@ -78,13 +78,14 @@ EXPOSE 4318
 ENV WITH_OTEL="false"
 
 COPY <<EOF start-opencode.sh
-echo "user= $(whoami)"
+echo "Opencode agent - version: $() - user= $(whoami) - started: $(TZ=$TZ date)"
 export GH_TOKEN=$GITHUB_OPENCODE_TOKEN
-if [[ "$WITH_OTEL" == "true" ]]
+if [[ "\$WITH_OTEL" == "true" ]]
 then
+  echo "starting OpenTelemetry collector with backend $OTEL_BACKEND_ENDPOINT ..."
   nohup otelcol-contrib --config=$OTEL_CONFIG
 fi
 sleep infinity
 EOF
 
-CMD ["bash", "-c", "bash ./start-opencode.sh"]
+CMD ["bash", "-c", "bash ./start-opencode.sh | tee -a opencode.log"]

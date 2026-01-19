@@ -118,7 +118,7 @@ jobs:
           # invoke opencode with free OpenRouter model
           docker exec "$CONTAINER_NAME" opencode run --log-level INFO --model 'opencode/glm-4.7-free' 'who are you?' >> opencode.log
           echo "opencode container invocation: $(cat opencode.log)"
-          grep 'opencode' opencode.log
+          grep --ignore-case 'opencode' opencode.log
           # explicit successful exit to kill container
           exit
 
