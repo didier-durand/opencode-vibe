@@ -19,9 +19,9 @@ or [Alacritty](https://github.com/alacritty/alacritty) to enjoy the optimal User
 
 Give it try: in your Ghostty / Alacritty / regular terminal, just execute 
 
-`docker run -it ghcr.io/didier-durand/opencode-vibe:latest opencode --log-level INFO --model opencode/glm-4.7-free --prompt 'who are you?'`
+`docker run -it ghcr.io/didier-durand/opencode-vibe:latest opencode --log-level INFO --model opencode/big-pickle --prompt 'who are you?'`
 
-Opencode will answer you who he is. The model `opencode/glm-4.7-free` is a free model, based on z.AI GLM-4.7, offered by Opencode to make initial steps.
+Opencode will answer you who he is. The model `opencode/big-pickle` is a free model offered by Opencode to facilitate initial project discovery.
 
 OpenTelemetry collector is embarked to make your various Opencode instances fully and efficiently 
 observable wherever you run them (laptop, open-prem server, cloud). Good [observability](https://www.ibm.com/think/topics/observability)
