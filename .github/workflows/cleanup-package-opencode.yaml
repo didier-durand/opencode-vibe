@@ -1,0 +1,49 @@
+name: 'cleanup Docker package versions'
+
+on:
+
+  workflow_dispatch:  # Allow manual triggering from GitHub UI
+
+  schedule:
+    - cron: '0 4,16 * * *' # runs at least twice every day: 4am and 4pm
+
+  push:
+    paths:
+      - '.github/workflows/cleanup-package-opencode.yaml'
+      - 'src/cleanup_package.py'
+
+jobs:
+
+  cleanup_docker_pkg_version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+
+      - name: 'check environment'
+        run: |
+          docker --version
+          python --version
+          echo "=== env vars ==="
+          printenv
+
+      - name: 'checkout git code'
+        uses: actions/checkout@v5
+
+      - name: 'cleanup package versions'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}}}
+        run: |
+          echo "working dir: $(pwd)"
+          ls
+          echo "cleanup package versions:"
+          python src/cleanup_package.py
+
+      
+
