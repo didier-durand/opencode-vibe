@@ -5,7 +5,7 @@ import os
 
 import requests
 
-MAX_VERSIONS = 6
+MAX_VERSIONS = 10
 PKG_PREFIX = "opencode"
 ARCHITECTURES = ["amd64", "arm64"]
 
