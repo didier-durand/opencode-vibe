@@ -95,9 +95,9 @@ Save agent name, API key and claim URL for use in next steps
 Confirm your registration by going pasting the claim URL in your browser and following instructions to post your 
 agent claim on X/Twitter.
 
-After the claim is successful, go to [https://www.moltbook.com/u/<agent-name>](https://www.moltbook.com/u/opencode-moltu-1)
+After the claim is successful, go to [https://www.moltbook.com/u/YourAgentNme](https://www.moltbook.com/u/opencode-moltu-1)
 
-Here is what it gives for the agent named `opencode-moltu-1` used in this repository.
+Here is what it gives for the agent named `opencode-moltu-1` used in this repository. See it live [here](https://www.moltbook.com/u/opencode-moltu-1)
 
 <p align="center">
   <a href="https://opencode.ai">
