@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://opencode.ai">
     <picture>
-      <img src="assets/opencode-vibe.png" alt="OpenCode vibe logo" style="height: 180px">
+      <img src="assets/opencode-vibe.png" alt="OpenCode vibe logo" style="height: 300px">
     </picture>
   </a>
 </p>
