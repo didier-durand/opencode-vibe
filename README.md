@@ -6,77 +6,143 @@
   </a>
 </p>
 
-# opencode-vibe: opencode agent as a Docker container
+# opencode-vibe: Github-hosted Opencode agent as Moltbook member
 
 <a href="https://www.npmjs.com/package/opencode-ai"><img alt="npm" src="https://img.shields.io/npm/v/opencode-ai?style=flat-square" /></a>
 [![build opencode Docker image](https://github.com/didier-durand/opencode-vibe/actions/workflows/build-docker-opencode.yaml/badge.svg)](https://github.com/didier-durand/opencode-vibe/actions/workflows/build-docker-opencode.yaml)
 
+This repository offers 2 main features:
+* a way to run an OpenCode agent as a member of Moltbook, the social network for AI agents. Some details about 
+Moltbook in [this post](https://didierdurand.substack.com/p/moltbook-the-ai-only-social-network).
+* the automated and continuous build of Opencode, the open source coding agent as a full-stack Docker image based on 
+Linux Debian. Opencode is my personal choice for AI-based agentic coding ("vibe coding") for the reasons detailed
+in [this post](https://didierdurand.substack.com/p/opencode-the-oss-coding-agent-80000). For all technical details on the Docker image continuous build, read [this page](GITHUB-SETUP.md)
 
-The GitHub workflow and Dockerfile of this repo create a full-stack container image based on Debian (currently Trixie) 
-to run [Opencode](https://opencode.ai/), aka *"the Open Source coding agent"*.  Running opencode in Docker keeps it 
-fully fledged: you can still run the agent in advanced terminals like [Ghostty](https://ghostty.org/docs/about) 
-or [Alacritty](https://github.com/alacritty/alacritty) to enjoy the optimal User Experience (UX).
+Go directly to section [Agent Instantiation](#agent-instantiation) below to have your own Opencode agent running on GitHub in minutes
+and interacting with peers on Moltbook. It will be 100% free: no costs at all as Opencode team [keeps sponsoring]()https://opencode.ai/docs/zen/ 
+the `big-pickle` model.
 
-Give it try: in your Ghostty / Alacritty / regular terminal, just execute 
+The main advantage of Opencode as Docker image is to allow it to run on your laptop in a safe and controlled manner. 
+It can only access what you allow via [Docker bind mounts at run time](https://docs.docker.com/engine/storage/bind-mounts/). In my use cases, it doesn't need even access 
+to any data of my laptop: my Opencode agents clone repositories from GitHub in the Docker container storage, work on them within Docker and send pull requests (PRs) back to GitHub where they are 
+accepted or not (sometimes by humans and soemtimes by other agents).
 
-`docker run -it ghcr.io/didier-durand/opencode-vibe:latest opencode --log-level INFO --model opencode/big-pickle --prompt 'who are you?'`
+In this repository, the GitHub workflow [run-moltbook-agent.yaml](.github/workflows/run-moltbook-agent.yaml) goes 1 step further. It demonstrates how to run the Opencode Docker image directly on GitHub to 
+avoid requiring an external machine like my laptop. 
 
-Opencode will answer you who he is. The model `opencode/big-pickle` is a free model offered by Opencode to facilitate initial project discovery.
+Additionally, this repository also shows how an Opencode can join the Moltbook social network for AI agents. I developed this solution to 
+allow my agents to practice what I'll name "PAD" for "Peer Agentic Development" where multiple independent 
+agents collaborate on a shared development goal. Moltbook will allow the discovery of such peers, with whom to 
+conduct such a PAD in a dedicated submolt (compared to [subreddits](https://www.reddit.com/r/help/comments/37shum/what_is_a_subreddit/), when Moltbook is defined as "Reddit for 
+agents".) if this PAD is executed openly. We'll extend this repository in subsequent versions to show how such PADs can 
+happen: it's currently WIP. I believe that various forms of PAA (Peer Agentic Activities) will emerge beyond PAD: Peer 
+Agentic Research (PAR), Peer Agentic Data Analysis (PADA), etc.
 
-OpenTelemetry collector is embarked to make your various Opencode instances fully and efficiently 
-observable wherever you run them (laptop, open-prem server, cloud). Good [observability](https://www.ibm.com/think/topics/observability)
-is critical to the success of agentic AI project: this [IBM article](https://www.ibm.com/think/insights/ai-agent-observability)
-explains in all details the importance of full observability in agentic workflows. Our [Substack article](https://didierdurand.substack.com/p/opentelemetry-the-glass-box-in-the) 
-explains why we believe that OpenTelemetry is the right framework to observe our agents.
+# Agent Instantiation
 
-## Why in a container ?
+(After your setup, please, give a star to this repository if you like our solution. Thanks!)
 
-We only run Opencode and similar agents like Claude Code, Gemini CLI, etc. in containers. Why? 
+The following guidance is supposed to allow anybody, i.e. even folks with very limited experience in coding and GitHub
+to set up their agent. Feel free to ping us if our documentation is not detailed and precise enough for you.
 
-* To be able to give Opencode full autonomy in tool use and data access within the container or on carefully 
-chosen / isolated disk sections (mounted as Docker runtime volumes). It gives the agents the 
-opportunity to deliver their maximum value as they have no constraints. The isolation provided by 
-the container makes it riskless for the setup and content of the host machine (local laptop, cloud server, etc.)
-* To obtain repeatability and consistency: we run same agents in diverse environments (laptop, on-premise infrastructure, cloud 
-server, etc.) for diverse parts of our workflows. Executing agents in a container ensures that their 
-technical environments (dependencies, etc.) are always identical. The number of setup-related issues
-gets massively reduced and the agent behaviors are consistent across those distinct environment.
-* To achieve portability: as a corollary of previous bullet, same container image can easily run 
-anywhere. So, we can develop and optimize an agentic workflow on a laptop and move to the cloud 
-for productive use.
+Your main piece of work will be the creation of your agent prompt. The prompt in [moltbook-prompt.md](agents/moltbook-prompt.md) 
+proposed by this showcase repository is very neutral by essence. It just reviews latest posts and contribute comments. 
 
-## Image build workflow
+Work on your own version. Make it precise and concise in how you want your agent to interact on Moltbook. Also, give 
+it a very salient persona: friendly, collaborative or even arrogant, misbehaving, etc. to experiment and get interesting outcomes. 
+We'll collectively obtain interesting results only if we have the widest selection of agent personas on Moltbook.
 
-Our [GitHub workflow](.github/workflows/build-docker-opencode.yaml) automatically builds a new version of the Docker image for x86 and arm64 
-architectures every 12h as Opencode currently evolves very fast. It is stored in thr [public container repository](https://github.com/didier-durand/opencode-vibe/pkgs/container/opencode-vibe)
-of this repository. The version badge displays the last [known version of Opencode package](https://github.com/anomalyco/opencode/releases) 
-configured in the image.
+## Prerequisites:
 
-To raise image quality, the GitHub action checks the snytax of the [Dockerfile](Dockerfile) via [Hadolint](https://github.com/hadolint/hadolint). 
-The utility check-jsonchema is used to validate the configuration [opencode.jsonc](https://opencode.ai/docs/config/) 
-against the opencode JSON schema pushlished at [https://opencode.ai/config.json](https://opencode.ai/config.json)
+1. A GitHub account to fork this repository
+2. An X/Twitter account: Moltbook requires humans to claim the registration of their agents via X tweets.
+3. An API key to your model provider if you want to use your LLMs of choice. This showcase is built with 
+`big-pickle` offered for free and without any key by Opencode. But, it's only a starter. I personally use OpenRouter 
+(I explain why in [this post](https://didierdurand.substack.com/p/7-openrouter-features-every-ai-developer)) to have a very wide selection of models, including the leading ones, proprietary or OSS
+4. The `curl` command installed on your laptop to be able to register your agent. See 
+[all details](https://curl.se/docs/install.html) for install on your OS
 
-the [Dockerfile](Dockerfile) is based on Debian v13, aka Trixie, official image. 
+## Agent registration on Moltbook
 
-The build workflow will:
-1. refresh Trixie's package
-2. install a set of foundational system tools like wget, url, jq, etc. very often within the bash 
-tools of opencode. This upfront installation avoids opencode to install them needed: it save LLM 
-tokens and reduces response latency.
-3. Install Python and uv: coding agents like opencode tend often to generate small scripts when they 
-need to repeat same operation against multiple application files. The pre-installation avoid 
-opencode having to install it on first use.
-4. Install OpenTelemetry with all its community contributions: Opencode leverages OpenTelemetry
-(via [Vercel's AI SDK](https://ai-sdk.dev/)) to report logs, trace spans, etc. The configuration in 
-[otel-config.yaml](otel-config.yaml) has provisions via environment variables to specify OpenTelemetry 
-endpoint at runtime in the `docker run` command.
-5.  Install last version of opencode via npm. It runs under a specific user `opencode` 
-in its home directory to avoid the use of root.
-6. Push the built image in GitHub-provided container repository `ghcr.io/didier-durand/opencode-vibe:latest`
-7. Download the new version of the Docker image just pushed
-8. Execute Opencode with a basic prompt to ensure and check the response to make sure that the 
-image is functioning as expected.
+Before running your Opencode agent on GitHub. You need to create it and claim it on Moltbook for to become a 
+"human-owned" member.
 
-Feel free to download and use this image as needed or customize the Dockerfile for your use case.
+For that purpose, choose a name for your agent and prepare a concise but attractive description as it will be 
+published by Moltbook as agent profile. Then, run the following curl command:
 
-For a quick start, use our version. Just pull it: `docker pull ghcr.io/didier-durand/opencode-vibe:latest`
+```bash
+curl -X POST https://www.moltbook.com/api/v1/agents/register \
+  -H "Content-Type: application/json" \
+  -d '{"name": "YourAgentName", "description": "YourDescription"}'
+```
+
+You will obtain a response like the following, comprising many fields, in particular the key ones mentioned below
+
+Response:
+```json
+{
+  "agent": {
+    "api_key": "moltbook_xxx",
+    "claim_url": "https://www.moltbook.com/claim/moltbook_claim_xxx",
+    "verification_code": "reef-X4B2"
+  },
+  "important": "⚠️ SAVE YOUR API KEY!"
+}
+```
+
+Save agent name, API key and claim URL for use in next steps
+
+Confirm your registration by going pasting the claim URL in your browser and following instructions to post your 
+agent claim on X/Twitter.
+
+After the claim is successful, go to [https://www.moltbook.com/u/<agent-name>](https://www.moltbook.com/u/opencode-moltu-1)
+
+Here is what it gives for the agent named `opencode-moltu-1` used in this repository.
+
+<p align="center">
+  <a href="https://opencode.ai">
+    <picture>
+      <img src="assets/moltbook-opencode-moltu-1.png" alt="opencode-moltu-1" style="height: 300px">
+    </picture>
+  </a>
+</p>
+
+## Agent initialization
+
+**Note**: to keep the agent initialization minimally demanding in terms of laptop prerequisites, we describe below the setup of 
+the fork in a fully interactive manner via the GitHub web UI. But, it can also be done via GitHub CLI and 
+download of your forked on your laptop.
+
+1. Fork this repository in your GitHub account. You can do it via the GitHub UI (the simplest!). 
+Watch [this video](https://www.youtube.com/watch?v=a_FLqX3vGR4) if needed.
+2. Delete all contents corresponding to agent executions in the origin repository: 1/ opencode-moltbook-session.json 
+to restart with your own fresh context 2/ opencode-moltbook-report-<TIMESTAMP>.md since they are reports happening in 
+this repository.  See final section below for more details.
+3. Set up a repository variable named MOLTBOOK_AGENT_NAME with your agent name as value of this variable. 
+See [this video](https://www.youtube.com/watch?v=dPLPSaFqJmY) for the how-to. 
+4. Set up a repository secret named MOLTBOOK_API_KEY with your API key obtained at previous step as value of your secret. 
+See [this video](https://www.youtube.com/watch?v=dPLPSaFqJmY) for the how-to.
+5. Edit and commit back the prompt file [moltbook-prompt.md](agents/moltbook-prompt.md) to define a prompt matching your goals. 
+Our sample prompt is very neutral: see above why / how you should customize your prompt. See [this video](https://www.youtube.com/watch?v=d7jHUh1PGwU) to learn how to edit a file in GitHub via your browser.
+6. If needed, update the TZ variable in [run-moltbook-agent.yaml](.github/workflows/run-moltbook-agent.yaml) to switch from `Europe/Paris` to your own timezones (possible values [here]())
+7. If desired, update the cron directive in [run-moltbook-agent.yaml](.github/workflows/run-moltbook-agent.yaml) to select the frequency of execution 
+that you prefer. With `cron: '0,30 * * * *'`, our sample automatically runs once 30 min. 
+8. If you want to use other models than `big-pickle`, you will also need to update the variable `AGENT_LLM` and define 
+another repository secret for your model provider API key: look up for `OPENROUTER_API_KEY` for an example with OpenRouter.
+
+
+## Moltbook interactions
+
+If you go to `agents` directory of your fork, you'll see 2 kinds of files:
+
+* **opencode-moltbook-session.json**: this file is an export of the Opencode session in which the Moltbook interactions happen. 
+Each Opencode execution augments it with what happened during last Opencode run. It is the memory of the agent that is 
+uploaded back into the Docker container before next run of interactions with Moltbook. It allows the agent to have 
+a memory and a context, from which it can restart and progress on each execution. If at some point, you want to restart 
+from scratch, you can delete this file. A fresh new session will be initiated at next agent execution.
+* **opencode-moltbook-report-<TIMESTAMP>.md**: output by Opencode agents re. results of execution that happened 
+at <TIMESTAMP>. We save those files to allow easy post-mortem analysis of what happened during a given execution. 
+Also, interesting for understanding of the agent behavior are the job execution logs in 
+[Actions tab](https://github.com/didier-durand/opencode-vibe/actions/workflows/run-moltbook-agent.yaml) of your repository.
+
+
