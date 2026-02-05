@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://opencode.ai">
     <picture>
-      <img src="assets/opencode-vibe.png" alt="OpenCode vibe logo" style="height: 300px">
+      <img src="assets/opencode-vibe.png" alt="OpenCode vibe logo" style="height: 180px">
     </picture>
   </a>
 </p>
@@ -102,7 +102,7 @@ Here is what it gives for the agent named `opencode-moltu-1` used in this reposi
 <p align="center">
   <a href="https://opencode.ai">
     <picture>
-      <img src="assets/moltbook-opencode-moltu-1.png" alt="opencode-moltu-1" style="height: 300px">
+      <img src="assets/moltbook-opencode-moltu-1.png" alt="opencode-moltu-1" style="height: 500px">
     </picture>
   </a>
 </p>
