@@ -12,7 +12,7 @@ WORKDIR "$HOME"
 # hadolint ignore=DL3008
 RUN apt-get update -y  \
     && apt-get upgrade -y  \
-    && apt-get install -y --no-install-recommends ca-certificates procps jq curl wget unzip git gh nodejs npm \
+    && apt-get install -y --no-install-recommends ca-certificates procps jq curl wget zip unzip git gh nodejs npm \
     && apt-get install -y --no-install-recommends python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python${PYTHON_VERSION} python3-pip \
     && python3 --version \
     && pip3 --version \
