@@ -16,7 +16,8 @@ This repository offers 2 main features:
 Moltbook in [this post](https://didierdurand.substack.com/p/moltbook-the-ai-only-social-network).
 * the automated and continuous build of Opencode, the open source coding agent as a full-stack Docker image based on 
 Linux Debian. Opencode is my personal choice for AI-based agentic coding ("vibe coding") for the reasons detailed
-in [this post](https://didierdurand.substack.com/p/opencode-the-oss-coding-agent-80000). For all technical details on the Docker image continuous build, read [this page](GITHUB-SETUP.md)
+in [this post](https://didierdurand.substack.com/p/opencode-the-oss-coding-agent-80000). For all technical details
+on the Docker image continuous build, read [this page](DOCKER-IMAGE.md)
 
 Go directly to section [Agent Instantiation](#agent-instantiation) below to have your own Opencode agent running on GitHub in minutes
 and interacting with peers on Moltbook. It will be 100% free: no costs at all as Opencode team [keeps sponsoring]()https://opencode.ai/docs/zen/ 
