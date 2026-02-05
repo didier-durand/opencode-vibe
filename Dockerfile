@@ -12,7 +12,7 @@ WORKDIR "$HOME"
 # hadolint ignore=DL3008
 RUN apt-get update -y  \
     && apt-get upgrade -y  \
-    && apt-get install -y --no-install-recommends ca-certificates procps jq curl wget zip unzip git gh nodejs npm \
+    && apt-get install -y --no-install-recommends ca-certificates procps less jq curl wget zip unzip git gh nodejs npm \
     && apt-get install -y --no-install-recommends python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python${PYTHON_VERSION} python3-pip \
     && python3 --version \
     && pip3 --version \
@@ -38,7 +38,7 @@ COPY otel-config.yaml "$OTEL_CONFIG"
 
 # install last version of uv
 ENV PATH="$PATH:/$HOME/.local/bin"
-# set to avoid issue describd in https://github.com/hadolint/hadolint/wiki/DL4006
+# set to avoid issue described in https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh  \
     && source /$HOME/.local/bin/env \
@@ -50,11 +50,11 @@ RUN npm install -g  opencode-ai
 ENV PATH="$PATH:/$HOME/.opencode/bin/"
 
 ENV OPENCODE_CONFIG="$HOME/.config/opencode/opencode.jsonc"
+COPY opencode.jsonc "$OPENCODE_CONFIG"
 # use * pattern to avoid copy failure if files don't exist
-COPY opencode.jsonc* "$OPENCODE_CONFIG"
 COPY .opencode/* .opencode/
 
-# user 'opencode'  allows to have all user Opencode data & config on mounted volume
+# user 'opencode' allows to have all user Opencode data & config on mounted volume
 # see https://opencode.ai/docs/troubleshooting/  for content of –/.local
 RUN groupadd --system $USER  \
     && useradd --system $USER --gid $USER \
