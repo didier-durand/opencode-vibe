@@ -1,0 +1,125 @@
+name: 'run Moltbook agent'
+
+on:
+
+  workflow_dispatch: # allow manual execution of workflow
+
+  #schedule:
+  #  - cron: '0,30 * * * *' # runs every 30 mins
+
+
+jobs:
+
+  run_molbook_agent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
+    steps:
+
+      - name: 'check environment'
+        run: |
+          docker --version
+          python --version
+
+      - name: 'checkout git code'
+        uses: actions/checkout@v5
+
+      - name: 'run Moltbook agent'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          MOLTBOOK_API_KEY: ${{ secrets.MOLTBOOK_API_KEY }}
+          MOLTBOOK_AGENT_NAME: ${{ vars.MOLTBOOK_AGENT_NAME }}
+          AGENTS_DIR: 'agents'
+          CONTAINER_NAME: 'moltbook-agent'
+          # big-pickle (z.AI GLM - freely offered by Opencode) is as starter and can / should be replaced by your preferred model
+          # I personally use 'openrouter/z-ai/glm-4.7' and 'openrouter/moonshotai/kimi-k2.5' for their deep reasoning capabilities
+          AGENT_LLM: 'opencode/big-pickle'
+          PROMPT_FILE: 'moltbook-prompt.md'
+          IMAGE_NAME: 'ghcr.io/didier-durand/opencode-vibe:latest'
+          SESSION: 'moltbook-session'
+          TIMEZONE: 'Europe/Paris'
+        run: |
+          ## check Opencode version (helpful for post-mortem analysis)
+          echo "===="
+          echo "opencode version: $(docker run $IMAGE_NAME opencode --version)"
+          echo "===="
+          
+          ## display fully-expanded executed shell commands (for post-mortem)
+          set -x
+          
+          ## go to work directory
+          cd "$AGENTS_DIR"
+          echo "working dir: $(pwd)"
+          ls -l
+          
+          ## make sure official Moltbook skill (used by prompt) is still there 
+          wget --quiet https://moltbook.com/skill.md
+          test -f skill.md
+          
+          ## check that agent was properly claimed by human
+          CLAIM_CHECK=$(curl https://www.moltbook.com/api/v1/agents/status -H "Authorization: Bearer $MOLTBOOK_API_KEY")
+          echo "$CLAIM_CHECK" | grep '"status":"claimed"'
+          
+          ## prepare command & prompt to be used for Moltbook interaction
+          AGENT_PROMPT="'$(cat $PROMPT_FILE)'"
+          #echo "$AGENT_PROMPT" | sed "s:':\\\':g" > "$AGENT_PROMPT" # escape single quotes in prompt
+          #echo "$AGENT_PROMPT" | sed 's:":\\\":g' > "$AGENT_PROMPT" # escape double quotes in prompt
+          OC_COMMAND="opencode run --title $SESSION -log-level INFO --model $AGENT_LLM $AGENT_PROMPT"
+          echo "OC_COMMAND: $OC_COMMAND"
+          
+          ## start the Opencode container for Moltbook agent as a daemon
+          docker run -d \
+             -e TZ="$TIMEZONE" \
+             -e OPENROUTER_API_KEY="$OPENROUTER_API_KEY" \
+             -e MOLTBOOK_AGENT_NAME="$MOLTBOOK_AGENT_NAME" \
+             -e MOLTBOOK_API_KEY="$MOLTBOOK_API_KEY" \
+             --name $CONTAINER_NAME \
+             $IMAGE_NAME
+          docker ps -a
+          
+          ## restore Opencode session (if exists) as Moltbook agent memory
+          if [[ -f opencode-moltbook-session.json ]]
+          then
+            docker exec $CONTAINER_NAME \
+               opencode import opencode-moltbook-session.json
+          fi
+          
+          ## run the Moltbook interaction
+          TIMESTAMP=$(TZ=$TIMEZONE date +'%Y-%m-%d-%H-%M-%S')
+          REPORT_FILE="opencode-moltbook-report-$TIMESTAMP.md"
+          docker exec $CONTAINER_NAME \
+              opencode run --title $SESSION --log-level INFO --model $AGENT_LLM "$OC_COMMAND" > "$REPORT_FILE"
+          echo "Agent response:"
+          echo "==============="
+          cat "$REPORT_FILE"
+          
+          ## export and save Opencode session for reuse as context of next Moltbook interaction
+          docker exec $CONTAINER_NAME \
+             opencode session list > list-moltbook-session.log
+          cat list-moltbook-session.log
+          SESSION_ID=$(cat list-moltbook-session.log | grep $SESSION | awk '{print $1}')
+          docker exec $CONTAINER_NAME \
+             opencode export $SESSION_ID > opencode-moltbook-session.json
+          echo "Opencode Moltbook session:"
+          echo "=========================="
+          cat opencode-moltbook-session.json
+          
+          ## commit new session file back to repo for context of next interaction
+          if [[ -f opencode-moltbook-session.json ]]
+          then
+            git config user.email "$GITHUB_WORKFLOW@github.com"
+            git config user.name "$GITHUB_WORKFLOW"
+            #
+            git add "$REPORT_FILE"
+            git add opencode-moltbook-session.json
+            git status
+            git commit -m "workflow '$GITHUB_WORKFLOW' (jod id: $GITHUB_RUN_ID) updating opencode-moltbook-session.json"
+            git push
+          fi
+          
+      
+
+      
+
