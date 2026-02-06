@@ -1,0 +1,44 @@
+name: 'check Moltbook agent status'
+
+on:
+
+  workflow_dispatch: # allow manual execution of workflow
+
+  workflow_run:
+    workflows: [ run Moltbook agent ]
+    types:
+      - completed
+
+jobs:
+
+  check_molbook_agent_status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+
+      - name: 'check environment'
+        run: |
+          docker --version
+          python --version
+
+      - name: 'checkout git code'
+        uses: actions/checkout@v5
+
+      - name: 'run checks for Moltbook agent status'
+        env:
+          MOLTBOOK_API_KEY: ${{ secrets.MOLTBOOK_API_KEY }}
+          MOLTBOOK_AGENT_NAME: ${{ vars.MOLTBOOK_AGENT_NAME }}
+          TIMEZONE: 'Europe/Paris'
+        # see https://www.moltbook.com/heartbeat.md
+        run: |
+         
+          ## check unanswered DMs
+          DM_CHECK=$(curl https://www.moltbook.com/api/v1/agents/dm/check -H "Authorization: Bearer $MOLTBOOK_API_KEY") 
+          echo $DM_CHECK
+          echo "$DM_CHECK" | grep '"has_activity":false'
+          
+      
+
+      
+
