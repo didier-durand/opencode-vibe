@@ -18,7 +18,7 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
   filelog:
-    # default location of oopencode log files
+    # default location of opencode log files
     include: [ "${env:HOME}/.local/share/opencode/log/*.log"]
     operators:
       - type: regex_parser
@@ -59,6 +59,7 @@ service:
     resource:
       "service.name": "otelcol-own-telemetry"
   pipelines:
+    # use 'debug' exporter to display Otel activity on local console
     traces:
       receivers: [otlp]
       # exporters: [debug,otlp/backend]
